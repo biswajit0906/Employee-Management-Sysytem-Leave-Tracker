@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    body {
+        background: #f5f7fb;
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+
+    h2, h4 {
+        font-weight: 600;
+    }
+
+    /* 🌟 SOFT GLASS CARDS */
+    .card {
+        border: none;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    /* 🎨 COLORED CARDS */
+    .card-blue { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; }
+    .card-yellow { background: linear-gradient(135deg, #f7971e, #ffd200); color: #fff; }
+    .card-green { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #fff; }
+    .card-red { background: linear-gradient(135deg, #ff758c, #ff7eb3); color: #fff; }
+
+    /* 🧾 TABLE */
+    table {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    thead {
+        background: #4facfe;
+        color: #fff;
+    }
+
+    tbody tr:hover {
+        background: #f1f5ff;
+    }
+
+    /* 🔘 BUTTONS */
+    .btn {
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-warning {
+        background: #ffc107;
+        border: none;
+    }
+
+    .btn-danger {
+        background: #ff4d4d;
+        border: none;
+    }
+
+    /* 🎯 STATUS SELECT */
+    select {
+        border-radius: 8px !important;
+        font-weight: 500;
+    }
+
+    .section {
+        margin-top: 40px;
+    }
+
+</style>
+
+<div class="container mt-4">
+
+    <h2 class="text-center mb-4">✨ Admin Dashboard</h2>
+
+    <!-- 🔥 COUNT CARDS -->
+    <div class="row text-center mb-4">
+
+        <div class="col-md-3">
+            <div class="card card-blue p-3">
+                <h5>👥 Total Employees</h5>
+                <h3>{{ total_employees }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-yellow p-3">
+                <h5>⏳ Pending</h5>
+                <h3>{{ pending_count }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-green p-3">
+                <h5>✅ Approved</h5>
+                <h3>{{ approved_count }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-red p-3">
+                <h5>❌ Rejected</h5>
+                <h3>{{ rejected_count }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 👨‍💼 EMPLOYEES -->
+    <div class="section">
+        <h4>👨‍💼 Employees</h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Contact</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.name }}</td>
+                    <td>{{ emp.email }}</td>
+                    <td>{{ emp.department }}</td>
+                    <td>{{ emp.contact }}</td>
+                    <td>
+                        <a href="{% url 'update_employee' emp.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_employee' emp.id %}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this employee?')">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No Employees Found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 📝 LEAVE REQUESTS -->
+    <div class="section">
+        <h4>📝 Leave Requests</h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Reason</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for leave in leaves %}
+                <tr>
+                    <td>{{ leave.employee.name }}</td>
+                    <td>{{ leave.reason }}</td>
+                    <td>{{ leave.from_date }}</td>
+                    <td>{{ leave.to_date }}</td>
+
+                    <td>
+                        <form method="POST" action="{% url 'update_leave_status' leave.id %}">
+                            {% csrf_token %}
+                            <select name="status"
+                                class="form-select 
+                                {% if leave.status == 'Approved' %}bg-success text-white
+                                {% elif leave.status == 'Rejected' %}bg-danger text-white
+                                {% else %}bg-warning{% endif %}"
+                                onchange="this.form.submit()">
+
+                                <option value="Pending" {% if leave.status == "Pending" %}selected{% endif %}>Pending</option>
+                                <option value="Approved" {% if leave.status == "Approved" %}selected{% endif %}>Approved</option>
+                                <option value="Rejected" {% if leave.status == "Rejected" %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </form>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'delete_leave' leave.id %}" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this leave request?')">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No Leave Requests Found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 🚪 LOGOUT -->
+    <div class="text-center mt-4">
+        <a href="{% url 'logout' %}" class="btn btn-danger px-4">Logout</a>
+    </div>
+
+</div>
+
+{% endblock %}

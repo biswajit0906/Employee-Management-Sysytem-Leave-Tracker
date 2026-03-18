@@ -1,0 +1,102 @@
+
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        min-height: 100vh;
+    }
+
+    .form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 40px;
+    }
+
+    .leave-card {
+        width: 100%;
+        max-width: 500px;
+        padding: 30px;
+        border-radius: 15px;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .leave-card h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        border-radius: 10px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        border-radius: 10px;
+        background: #28a745;
+        color: white;
+        font-weight: 600;
+        padding: 10px;
+    }
+
+    .btn-submit:hover {
+        background: #218838;
+    }
+
+    .btn-back {
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="container form-container">
+
+    <div class="leave-card">
+
+        <h2>📝 Apply Leave</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Reason -->
+            <div class="mb-3">
+                <label>Reason</label>
+                {{ form.reason|add_class:"form-control" }}
+            </div>
+
+            <!-- From Date -->
+            <div class="mb-3">
+                <label>From Date</label>
+                {{ form.from_date|add_class:"form-control" }}
+            </div>
+
+            <!-- To Date -->
+            <div class="mb-3">
+                <label>To Date</label>
+                {{ form.to_date|add_class:"form-control" }}
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-submit">Submit Leave</button>
+
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-back">Back</a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
